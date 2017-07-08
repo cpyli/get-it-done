@@ -22,11 +22,24 @@ def index():
         task_name = request.form['task']
         new_task = Task(task_name)
         db.session.add(new_task)
-        db.session.commit()        
+        db.session.commit()
 
-    tasks = Task.query.all()
+    tasks = Task.query.filter_by(completed=False).all()
+    completed_tasks = Task.query.filter_by(completed=True).all()
+    return render_template('todos.html',title="Get It Done!", 
+        tasks=tasks, completed_tasks=completed_tasks)
 
-    return render_template('todos.html',title="Get It Done!", tasks=tasks)
 
+@app.route('/delete-task', methods=['POST'])
+def delete_task():
+
+    task_id = int(request.form['task-id'])
+    task = Task.query.get(task_id)
+    task.completed = True
+    db.session.add(task)
+    db.session.commit()
+
+    return redirect('/')
+    
 if __name__ == '__main__':
     app.run()
